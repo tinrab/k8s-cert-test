@@ -1,0 +1,30 @@
+{{- if .Values.ingress.enabled -}}
+{{- $fullName := include "hello-world-chart.fullname" . -}}
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: {{ $fullName }}
+  namespace: default
+  labels:
+    app: {{ $fullName }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+    heritage: "{{ .Release.Service }}"
+spec:
+  secretName: example-com-tls
+  issuerRef:
+    name: letsencrypt-issuer
+    kind: Issuer
+  acme:
+    config:
+    - http01:
+        ingressClass: nginx
+      domains:
+      {{- range .Values.ingress.hosts }}
+      - {{ . }}
+      {{- end }}
+  dnsNames:
+  {{- range .Values.ingress.hosts }}
+  - {{ . }}
+  {{- end -}}
+{{- end }}

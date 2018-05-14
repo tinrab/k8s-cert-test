@@ -7,7 +7,13 @@ import (
 
 func main() {
 	http.HandleFunc("/", indexHandler)
-	http.ListenAndServe(":8000", nil)
+
+	forever := make(chan struct{})
+	go func() {
+		http.ListenAndServe(":8443", nil)
+	}()
+
+	<-forever
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
